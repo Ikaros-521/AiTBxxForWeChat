@@ -13,7 +13,11 @@ App({
   },
   onLaunch: function () {
     this.globalData.SystemInfo = wx.getSystemInfoSync()
-    //console.log(this.globalData.SystemInfo)
+    console.log(this.globalData.SystemInfo)
+
+    wx.navigateTo({
+      url: '/pages/search/search',
+    })
   },
   globalData: {
     SystemInfo: {}
