@@ -125,7 +125,21 @@ Page({
       success: function(res) {},
     })
   },
-   SendCleanTap: function() {
+  DisConnectTap: function(e) {
+    wx.closeBLEConnection({
+      deviceId: this.data.connectedDeviceId,
+      success (res) {
+        console.log('断开连接成功！ ' + res)
+        wx.navigateTo({
+          url: '../search/search'
+        })
+      },
+      fail(res) {
+        console.log(res)
+      }
+    })
+  },
+  SendCleanTap: function() {
     this.setData({
       inputText: ''
     })

@@ -7,17 +7,21 @@ Page({
   Search: function() {
     var that = this
     if (!that.data.searching) {
+      // 关闭蓝牙模块
       wx.closeBluetoothAdapter({
         complete: function(res) {
           console.log(res)
+          // 初始化蓝牙模块
           wx.openBluetoothAdapter({
             success: function(res) {
               console.log(res)
+              // 获取本机蓝牙适配器状态
               wx.getBluetoothAdapterState({
                 success: function(res) {
                   console.log(res)
                 }
               })
+              // 开始搜寻附近的蓝牙外围设备
               wx.startBluetoothDevicesDiscovery({
                 allowDuplicatesKey: false,
                 success: function(res) {
@@ -46,6 +50,7 @@ Page({
         }
       })
     } else {
+      // 停止搜寻附近的蓝牙外围设备
       wx.stopBluetoothDevicesDiscovery({
         success: function(res) {
           that.setData({
@@ -105,6 +110,7 @@ Page({
     that.setData({
       list_height: list_height
     })
+    // 监听蓝牙适配器状态变化事件
     wx.onBluetoothAdapterStateChange(function(res) {
 
       that.setData({
@@ -116,9 +122,11 @@ Page({
         })
       }
     })
+    // 监听搜索到新设备的事件
     wx.onBluetoothDeviceFound(function(devices) {
-      //剔除重复设备，过滤名字是否为 Ai-Thinker 
+      // 剔除重复设备，过滤名字是否为 Ai-Thinker 
       var isnotexist = true
+      console.log(devices)
       if (devices.deviceId) {
         if (devices.advertisData) {
           devices.advertisData = app.buf2hex(devices.advertisData)
@@ -127,11 +135,13 @@ Page({
         }
         console.log(devices)
         for (var i = 0; i < that.data.devicesList.length; i++) {
+          // 扫码到的设备已经添加到了列表中
           if (devices.deviceId == that.data.devicesList[i].deviceId) {
             isnotexist = false
           }
         }
-        if (isnotexist && devices[0].name === 'Ai-Thinker') {
+        //if (isnotexist && devices[0].name === 'Ai-Thinker') {
+        if (isnotexist) {
           that.data.devicesList.push(devices[0])
         }
       } else if (devices.devices) {
@@ -146,7 +156,8 @@ Page({
             isnotexist = false
           }
         }
-        if (isnotexist && devices.devices[0].name === 'Ai-Thinker') {
+        // if (isnotexist && devices.devices[0].name === 'Ai-Thinker') {
+        if (isnotexist) {
           that.data.devicesList.push(devices.devices[0])
         }
       } else if (devices[0]) {
@@ -161,7 +172,8 @@ Page({
             isnotexist = false
           }
         }
-        if (isnotexist && devices[0].name === 'Ai-Thinker') {
+        // if (isnotexist && devices[0].name === 'Ai-Thinker') {
+        if (isnotexist) {
           that.data.devicesList.push(devices[0])
         }
       }
