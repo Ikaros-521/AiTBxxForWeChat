@@ -140,7 +140,6 @@ Page({
             isnotexist = false
           }
         }
-        //if (isnotexist && devices[0].name === 'Ai-Thinker') {
         if (isnotexist) {
           that.data.devicesList.push(devices[0])
         }
@@ -156,7 +155,6 @@ Page({
             isnotexist = false
           }
         }
-        // if (isnotexist && devices.devices[0].name === 'Ai-Thinker') {
         if (isnotexist) {
           that.data.devicesList.push(devices.devices[0])
         }
@@ -172,7 +170,6 @@ Page({
             isnotexist = false
           }
         }
-        // if (isnotexist && devices[0].name === 'Ai-Thinker') {
         if (isnotexist) {
           that.data.devicesList.push(devices[0])
         }

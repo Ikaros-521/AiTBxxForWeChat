@@ -17,6 +17,7 @@ App({
 
     wx.navigateTo({
       url: '/pages/search/search',
+      // url: '/pages/device/device',
     })
   },
   globalData: {

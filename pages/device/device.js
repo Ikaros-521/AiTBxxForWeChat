@@ -2,13 +2,56 @@ const app = getApp()
 Page({
   data: {
     inputText: 'Hello World!',
+    alreadySendText: '',
     receiveText: '',
-    receiveArry: [],
     name: '',
     connectedDeviceId: '',
     serviceId: 0,
     characteristics: {},
     connected: true,
+    uuidArray: [],
+    index_uuid: 0,
+  },
+  bindPickerChange: function(e) {
+    var that = this
+    console.log('picker发送选择改变，携带值为', e.detail.value, ' uuid:' + that.data.uuidArray[e.detail.value])
+    that.setData({
+      index_uuid: e.detail.value,
+      serviceId: that.data.uuidArray[e.detail.value]
+    })
+    // 获取蓝牙低功耗设备某个服务中所有特征
+    wx.getBLEDeviceCharacteristics({
+      deviceId: that.data.connectedDeviceId,
+      serviceId: that.data.serviceId,
+      success: function(res) {
+        that.setData({
+          characteristics: res.characteristics
+        })
+        // 启用低功耗蓝牙设备特征值变化时的 notify 功能，订阅特征值
+        wx.notifyBLECharacteristicValueChange({
+          state: true,
+          deviceId: that.data.connectedDeviceId,
+          serviceId: that.data.serviceId,
+          characteristicId: that.data.characteristics[0].uuid,
+          success: function(res) {
+            console.log('启用notify成功')
+          },
+          fail(res) {
+            console.log(res)
+            wx.showModal({
+              title: '提示',
+              content: res.errMsg,
+              showCancel: false,
+              success: function(res) {
+                that.setData({
+                  searching: false
+                })
+              }
+            })
+          }
+        })
+      }
+    })
   },
   bindInput: function(e) {
     this.setData({
@@ -30,7 +73,11 @@ Page({
         characteristicId: that.data.characteristics[0].uuid,
         value: buffer,
         success: function(res) {
-          console.log('发送成功')
+          console.log('发送成功');
+          // 设置已经发送的数据内容
+          that.setData({
+            alreadySendText : that.data.alreadySendText + that.data.inputText
+          });
         }
       })
     } else {
@@ -53,38 +100,36 @@ Page({
       name: options.name,
       connectedDeviceId: options.connectedDeviceId
     })
+    // 获取蓝牙低功耗设备所有服务 
     wx.getBLEDeviceServices({
       deviceId: that.data.connectedDeviceId,
       success: function(res) {
         var all_UUID = res.services;
-        var index_uuid = -1;
         var UUID_lenght = all_UUID.length;
+
+        console.log(all_UUID);
+
         /* 遍历服务数组 */
         for (var index = 0; index < UUID_lenght; index++) {
           var ergodic_UUID = all_UUID[index].uuid; //取出服务里面的UUID
           /* 判断是否是我们需要的00010203-0405-0607-0809-0A0B0C0D1910*/
-          if (ergodic_UUID == '00010203-0405-0607-0809-0A0B0C0D1910') {
-            index_uuid = index;
-          };
+          //if (ergodic_UUID == '00010203-0405-0607-0809-0A0B0C0D1910') {
+          // if (ergodic_UUID == '00010203-0405-0607-0809-0A0B0C0D7FDE') {
+          //   that.setData({
+          //     index_uuid: index
+          //   })
+          // };
+          that.setData({
+            uuidArray: that.data.uuidArray.concat(ergodic_UUID)
+          });
         };
-        if (index_uuid == -1) {
-          wx.showModal({
-            title: '提示',
-            content: '非我方出售的设备',
-            showCancel: false,
-            success: function(res) {
-              that.setData({
-                searching: false
-              })
-            }
-          })
-        }
         that.setData({
-          serviceId: res.services[index_uuid].uuid
+          serviceId: res.services[that.data.index_uuid].uuid
         })
+        // 获取蓝牙低功耗设备某个服务中所有特征
         wx.getBLEDeviceCharacteristics({
           deviceId: options.connectedDeviceId,
-          serviceId: res.services[index_uuid].uuid,
+          serviceId: res.services[that.data.index_uuid].uuid,
           success: function(res) {
             that.setData({
               characteristics: res.characteristics
@@ -99,6 +144,16 @@ Page({
               },
               fail(res) {
                 console.log(res)
+                wx.showModal({
+                  title: '提示',
+                  content: res.errMsg,
+                  showCancel: false,
+                  success: function(res) {
+                    that.setData({
+                      searching: false
+                    })
+                  }
+                })
               }
             })
           }
@@ -112,10 +167,12 @@ Page({
       })
     })
     wx.onBLECharacteristicValueChange(function(res) {
-      console.log('接收到数据：' + app.buf2string(res.value))
+      console.log('接收到数据：' + app.buf2string(res.value));
+      console.log('数据长度=' + app.buf2string(res.value).length);
       var time = that.getNowTime()
       that.setData({
-        receiveText: that.data.receiveText + time + (app.buf2string(res.value))
+        receiveText: that.data.receiveText + time + "(数据长度=" + app.buf2string(res.value).length + 
+          ")：" + (app.buf2string(res.value)) + "\n"
       })
     })
   },
@@ -144,13 +201,17 @@ Page({
       inputText: ''
     })
   },
-
+  AlreadySendCleanTap: function() {
+    this.setData({
+      alreadySendText: ''
+    })
+  },
   RecvCleanTap: function () {
     this.setData({
       receiveText: ''
     })
   },
-   SendValue:function(e){
+  SendValue:function(e){
     this.setData({
       inputText:e.detail.value
     })
@@ -175,7 +236,8 @@ Page({
     myDate.getSeconds(); //获取当前秒数(0-59)
     myDate.getMilliseconds(); //获取当前毫秒数(0-999)
     myDate.toLocaleDateString(); //获取当前日期
-    var nowTime = add_10(myDate.getHours()) + '时' + add_10(myDate.getMinutes()) + '分' + add_10(myDate.getSeconds()) + '秒 收到：';
+    var nowTime = '[' + add_10(myDate.getHours()) + ':' + add_10(myDate.getMinutes()) + ':' + add_10(myDate.getSeconds()) + 
+      ']' + ' 收到';
     return nowTime;
   }
 })

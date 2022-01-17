@@ -6,7 +6,8 @@
     color: #666;
     font-family: "Microsoft YaHei";
 }
-.connect_device_name{
+
+.connect_device_name {
     float: left;
     padding-left: 10px;
     color: #39beff;
@@ -25,6 +26,15 @@
     border: 2px solid #39beff;
     margin: 10px auto;
     padding: 5px;
+}
+
+.already_send_text {
+    width: 90%;
+    height: 200rpx;
+    border: 2px solid grey;
+    margin: 0 auto 10px;
+    padding: 5px;
+    font-size: 25rpx;
 }
 
 .send_btn_box {
@@ -54,7 +64,8 @@
     padding: 0 10px;
     float: right;
 }
-.send_btn:active{
+
+.send_btn:active {
     background-color: #d4d4d4;
 }
 
@@ -66,7 +77,8 @@
     float: right;
     margin-right: 7px;
 }
-.send_clean_btn:active{
+
+.send_clean_btn:active {
     background-color: #d4d4d4;
 }
 
@@ -89,7 +101,7 @@
 
 .revc_text {
     width: 90%;
-    height: 550rpx;
+    height: 500rpx;
     border: 2px solid grey;
     margin: 0 auto 10px;
     padding: 5px;
@@ -123,7 +135,8 @@
     padding: 0 10px;
     float: right;
 }
-.recv_clean_btn:active{
+
+.recv_clean_btn:active {
     background-color: #d4d4d4;
 }
 
@@ -138,4 +151,18 @@
     float: right;
     margin-right: 40rpx;
     color: #39beff;
+}
+
+.section {
+    width: 92%;
+    margin: auto;
+    font-size: 32rpx;
+    color: #333;
+    font-family: "Microsoft YaHei";
+    height: 75px;
+    line-height: 30px;
+}
+
+.picker {
+    border: 1px solid #ccc;
 }
